@@ -2,11 +2,11 @@ import React from 'react';
 import Contact from './Contact'
 
 function ContactsList (props) {
-    const contacts = props.filteredContacts.map((contact, index) => {
+    const contacts = props.contacts.map((contact, index) => {
     return <Contact key={index} name={contact.name}/>
  })
     return (
-        <div>
+        <div onClick={props.selectContact}>
             {contacts}
         </div>
     )
@@ -14,3 +14,4 @@ function ContactsList (props) {
 
 
 export default ContactsList;
+

@@ -10,7 +10,6 @@ function SearchBox(props) {
                 id="id_select"
                 className="input_searchBox"
                 onFocus={handleFocus} 
-                onBlur={handleFocus} 
                 onChange={handleInput} 
                 type='text' 
                 value={searchContactName} 

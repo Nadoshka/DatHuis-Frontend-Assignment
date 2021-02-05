@@ -8,43 +8,56 @@ export default class App extends React.Component {
   state = {
     contacts: [],
     isActive: false,
-    selectedContact: '',
-    searchContactName: ''
+    searchContactName: '',
+    filteredContacts: [],
 };
 
 componentDidMount() {
     fetch('http://localhost:5000')
     .then(response => response.json())
     .then(contacts => {
-        const validatedContacts = contacts.filter(contact => contact.name !== null)
-        this.setState({ contacts: validatedContacts})
+        const validatedContacts = contacts.filter(contact => contact.name !== null);
+        const lowerCaseContact = validatedContacts.map(contact => ({name: contact.name.toLowerCase()}))
+        this.setState({ contacts: lowerCaseContact, filteredContacts: lowerCaseContact})
     });
 }
 
+
 handleInput = (e) => {
-  console.log(e.target.value)
-  this.setState ({searchContactName: e.target.value})
+  this.setState ({searchContactName: e.target.value});
+  if(e.target.value.length > 2){
+    const payload = {
+      userInput: e.target.value,
+    }
+    fetch('http://localhost:5000/filter',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      mode: 'cors',
+      body: JSON.stringify(payload),
+    }).then(response => response.json()).then(filteredContacts => {
+      this.setState({filteredContacts: filteredContacts});
+    });
+  }else {
+    this.setState({filteredContacts: this.state.contacts})
+  }
 }
 
-handleContactSelection = (event) => {
-    this.setState({selectedContact: event.target.innerText})
-}
+handelSelect = (e) => {
+  this.setState ({searchContactName: e.target.innerText})
+} 
 
 focusHandler = () => {
   this.setState({isActive: !this.state.isActive});
 }
   
 render() {
-  const {contacts, searchContactName, isActive} = this.state;
-  const filteredContacts = contacts.filter((contact) => {
-    return contact.name.toLowerCase().includes(searchContactName.toLowerCase())
-  });
-  console.log(filteredContacts);
+  const {filteredContacts, searchContactName, isActive} = this.state;
   return (
     <div>
       <SearchBox isActive={isActive} handleFocus={this.focusHandler} handleInput={this.handleInput} searchContactName={searchContactName}/>
-      {isActive && <ContactsList  filteredContacts={filteredContacts}/>}
-      
+      {isActive && <ContactsList  contacts={filteredContacts} selectContact={this.handelSelect}/>}
     </div>
   )
 }
